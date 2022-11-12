@@ -1,0 +1,13 @@
+{
+  "bootstrap-sha": "409ca9a19f80211d485d44c373cbcb5a73d5f686",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "monorepo-tags": false,
+      "include-component-in-tag": false,
+      "prerelease": false,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true
+    }
+  }
+}
