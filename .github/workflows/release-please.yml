@@ -1,0 +1,74 @@
+name: Run Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    permissions:
+      contents: write # for google-github-actions/release-please-action to create release commit
+      pull-requests: write # for google-github-actions/release-please-action to create release PR
+    runs-on: ubuntu-latest
+
+    # Release-please creates a PR that tracks all changes
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          token: ${{secrets.GITHUB_TOKEN}}
+          default-branch: main
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      release_tag_name: ${{ steps.release.outputs.tag_name }}
+      release_pr: ${{ steps.release.outputs.pr }}
+
+  pr:
+    permissions:
+      packages: write # to push the container image
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: ${{ !needs.release-please.outputs.release_created && needs.release-please.outputs.pr }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # from JSON()
+          ref: ${{ github.ref }}
+
+      - name: setup git
+        run: |
+          # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+          git --version
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git status
+
+      - name: update readme
+        run: echo 'test' >> README.md
+
+      - name: commit
+        run: |
+          git add README.md
+          git commit -m "chore: update readme" -s
+          git push
+
+  release:
+    permissions:
+      packages: write # to push the container image
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.release_created }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.release-please.outputs.release_tag_name }}
+
+      - name: Success
+        run: cat README.md
