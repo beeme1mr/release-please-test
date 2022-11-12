@@ -26,14 +26,13 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
-      release_pr: ${{ steps.release.outputs.pr }}
 
   pr:
     permissions:
       packages: write # to push the container image
     needs: release-please
     runs-on: ubuntu-latest
-    if: ${{ !needs.release-please.outputs.release_created && needs.release-please.outputs.pr }}
+    if: ${{ !needs.release-please.outputs.release_created }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
