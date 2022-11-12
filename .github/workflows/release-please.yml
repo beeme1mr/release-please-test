@@ -26,6 +26,9 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
+      pr: ${{ steps.release.outputs.pr }}
+      prs: ${{ steps.release.outputs.prs }}
+      sha: ${{ steps.release.outputs.sha }}
 
   pr:
     permissions:
